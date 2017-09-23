@@ -1,0 +1,97 @@
+source $VIMRUNTIME/vimrc_example.vim
+source $VIMRUNTIME/mswin.vim
+behave mswin
+
+set diffexpr=MyDiff()
+function MyDiff()
+  let opt = '-a --binary '
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  let arg1 = v:fname_in
+  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+  let arg2 = v:fname_new
+  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+  let arg3 = v:fname_out
+  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+  if $VIMRUNTIME =~ ' '
+    if &sh =~ '\<cmd'
+      if empty(&shellxquote)
+        let l:shxq_sav = ''
+        set shellxquote&
+      endif
+      let cmd = '"' . $VIMRUNTIME . '\diff"'
+    else
+      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+    endif
+  else
+    let cmd = $VIMRUNTIME . '\diff'
+  endif
+  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3
+  if exists('l:shxq_sav')
+    let &shellxquote=l:shxq_sav
+  endif
+endfunction
+
+function Compile()
+		if &filetype == 'cpp'
+				exec "!g++ % -o %< -g -Wall -Wextra -Wconversion"
+		elseif &filetype == 'c'
+				exec "!gcc % -o %< -g -Wall -Wextra -Wconversion"
+		elseif &filetype == 'pas'
+				exec "!fpc % -g"
+		elseif &filetype == 'tex'
+				exec "!xelatex '%'"
+		elseif &filetype == 'java'
+				exec "!javac %"
+		elseif &filetype == 'scss'
+				exec "!sass % > %<.css"
+		endif
+endfunction
+
+function Debug()
+		if &filetype == 'cpp' 
+				exec "!gdb ./%<"
+		elseif &filetype == 'tex'
+				exec "!okular './%<.pdf'"
+		elseif &filetype == 'java'
+				exec "!jdb %<"
+		endif
+endfunction
+
+function Run()
+		if &filetype == 'cpp'
+				exec "!time ./%<"
+		elseif &filetype == 'tex'
+				exec "!okular './%<.pdf'"
+		elseif &filetype == 'java'
+				exec "!java %<"
+		elseif &filetype == 'ruby'
+				exec "!ruby %"
+		elseif &filetype == 'html'
+				exec "!firefox %"
+		elseif &filetype == 'php'
+				exec "!php %"
+		elseif &filetype == 'sh'
+				exec "!bash %"
+		endif
+endfunction
+
+set hlsearch
+set mouse=a
+set smartindent
+set fdm=marker
+set number
+set tabstop=4
+set softtabstop=4
+syntax on
+filetype plugin indent on
+imap jj <esc>
+map <F9> : call Compile() <CR>
+map <F5> : call Debug() <CR>
+map <F6> : call Run() <CR>
+map <F11> : ! g++ % -o %< -O2 <CR>
+map <F12> : ! subl ./% <CR>
+map <F8> : ! g++ % -o %< -g <CR>
+map <F2> : ! python3 % <CR>
+colors torte
+
