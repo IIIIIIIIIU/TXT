@@ -37,8 +37,8 @@ class LinkCutTreeType
 			inline void rotate()
 			{
 				TreeNode *fa=this->f,*ffa=fa->f;bool l=(fa->ch[1]==this),r=l^1;
-				if(ffa!=NULL) ffa->ch[ffa->ch[1]==fa]=this;
-				this->f=ffa,fa->ch[l]=this->ch[r],this->f=this,this->ch[r]=fa;
+				if(!fa->isroot()) ffa->ch[ffa->ch[1]==fa]=this;
+				this->f=ffa,fa->ch[l]=this->ch[r],fa->f=this,this->ch[r]=fa;
 				if(fa->ch[l]!=NULL) fa->ch[l]->f=fa;fa->updata();
 			}
 
@@ -80,7 +80,11 @@ class LinkCutTreeType
 			top=0;
 			Stack[++top]=tmp;
 			for(tmp=&node[x];!tmp->isroot();tmp=tmp->f) Stack[++top]=tmp->f;
-			while(top) Stack[top--]->pushdown();
+			while(top)
+			{
+				Stack[top]->pushdown();
+				top--;
+			}
 			tmp=&node[x];
 			while(!tmp->isroot())
 			{
@@ -88,8 +92,8 @@ class LinkCutTreeType
 				if(!fa->isroot())
 				{
 					ffa=fa->f;
-					if(ffa->ch[1]==fa^fa->ch[1]==tmp) fa->rotate();
-					else tmp->rotate();
+					if((ffa->ch[1]==fa)^(fa->ch[1]==tmp)) tmp->rotate();
+					else fa->rotate();
 				}
 				tmp->rotate();
 			}
@@ -122,6 +126,8 @@ class LinkCutTreeType
 		{
 			makeroot(x);
 			node[x].f=&node[y];
+//			splay(x);
+//			access(x);
 		}
 
 		void cut(int x,int y)
@@ -130,6 +136,7 @@ class LinkCutTreeType
 			access(y);
 			splay(y);
 			node[y].ch[0]=node[x].f=NULL;
+			node[y].updata();
 		}
 
 		int getkey(int x,int y)
@@ -219,6 +226,7 @@ int main()
 			}
 		}
 	}
-	std::cout<<ans;
+	if(ans==INF) std::cout<<-1;
+	else std::cout<<ans;
 	return 0;
 }
