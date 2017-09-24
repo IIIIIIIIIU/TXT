@@ -160,7 +160,7 @@ int GT ()
 
 int main()
 {
-	freopen("data.txt","r",stdin);
+// 	freopen("data.txt","r",stdin);
 	fread(Cget,1,BUF,stdin);
 	srand(time(0));
 	read(n);
