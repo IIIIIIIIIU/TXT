@@ -165,8 +165,8 @@ void solve4()
 
 int main()
 {
-    freopen("years.in","r",stdin);
-    freopen("years.out","w",stdout);
+    	freopen("years.in","r",stdin);
+    	freopen("years.out","w",stdout);
 	int type;
 	read(type);
 	if(type==1) solve1();
