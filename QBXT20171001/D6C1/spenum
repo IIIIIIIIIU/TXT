@@ -1,0 +1,66 @@
+#include <cstdio>
+#include <cstring>
+typedef unsigned long long llint;
+
+char p[32]; int m;
+int f[32];
+void KMP() {
+	f[0] = 0, f[1] = 0;
+	for (int i = 1; i < m; i++) {
+		int j = f[i];
+		while (j && p[i]!=p[j]) j = f[j];
+		f[i+1] = p[i] == p[j] ? j + 1 : 0;
+	}
+}
+
+int a[32];
+llint dp[20][2000][2];
+llint dfs(int k, int w, bool lim, bool get) {
+	if (!k)
+		return get;
+	else if (!lim && ~dp[k][w][get])
+		return dp[k][w][get];
+	else {
+		llint ret = 0;
+		for (int i = 0, j = lim ? a[k] : 9; i <= j; i++) {
+			int t = w;
+			while (t && p[t] - '0' != i) t = f[t];
+			if (p[t] - '0' == i) t++;
+			ret += dfs(k - 1, t, lim && (i == a[k]), get || (t == m));
+		}
+		return lim ? ret : dp[k][w][get] = ret;
+	}
+}
+
+llint query(llint lim) {
+	int cnt = 0;
+	while (lim) {
+		a[++cnt] = lim % 10;
+		lim /= 10;
+	}
+	memset(dp, 0xff, sizeof(dp));
+	return dfs(cnt, 0, true, false);
+}
+
+llint L, R, K;
+int main() {
+	freopen("spenum.in", "r", stdin);
+	freopen("spenum.out", "w", stdout);
+	scanf("%I64u %I64u %s %I64u", &L, &R, p, &K);
+	m = strlen(p);
+	KMP();
+	K += query(L - 1);
+	if (query(R - 1) < K) {
+		puts("Hey,wake up!");
+		return 0;
+	}
+	llint tmp = 1, ans = L - 1;
+	while (tmp < R - L + 1) tmp = tmp * 2;
+	while (tmp) {
+		if (query(ans + tmp) < K)
+			ans += tmp;
+		tmp = tmp / 2;
+	}
+	printf("%I64u\n", ans + 1);
+	return 0;
+}
