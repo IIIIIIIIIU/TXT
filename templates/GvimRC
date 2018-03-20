@@ -81,11 +81,11 @@ set mouse=a
 set smartindent
 set fdm=marker
 set number
-set tabstop=4
-set softtabstop=4
+set lines=77
+set columns=122
 syntax on
 filetype plugin indent on
-imap jj <esc>
+imap jk <esc>
 map <F9> : call Compile() <CR>
 map <F5> : call Debug() <CR>
 map <F6> : call Run() <CR>
