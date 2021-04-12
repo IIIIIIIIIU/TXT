@@ -1,0 +1,278 @@
+call plug#begin('~/.vim/plugged')
+
+Plug 'preservim/nerdtree'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+Plug 'Valloric/YouCompleteMe'
+Plug 'kien/ctrlp.vim'
+Plug 'tpope/vim-commentary'
+Plug 'dense-analysis/ale'
+Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'preservim/tagbar'
+Plug 'vim-scripts/taglist.vim'
+Plug 'mhinz/vim-startify'
+
+call plug#end()
+
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
+set rtp+=~/.vim/bundle/Vundle.vim
+
+filetype plugin indent on    " required
+
+runtime! debian.vim
+
+if has("syntax")
+  syntax on
+endif
+
+if filereadable("/etc/vim/vimrc.local")
+  source /etc/vim/vimrc.local
+endif
+function Compile()
+                if &filetype == 'cpp'
+                        exec "!g++ % -o %< -g"
+                elseif &filetyp == 'c'
+                        exec "!gcc % -o %< -g"
+                endif
+endfunction
+
+function Debug()
+        if &filetype == 'cpp'
+                exec "!gdb ./%<"
+        endif
+endfunction
+
+function Run()
+        if &filetype == 'cpp'
+                exec "!time ./%<"
+        endif
+endfunction
+
+set cursorline
+set hlsearch
+set autoindent
+set smartindent
+set fdm=marker
+set number
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set incsearch
+set showmode
+
+set nobackup
+set nowb
+set noswapfile
+
+set showcmd
+set ruler
+set cmdheight=2
+
+"ycm
+"let g:ycm_key_list_select_com
+let g:ycm_global_ycm_extra_conf = '~/.vim/plugged/YouCompleteMe/third_party/ycmd/.ycm_extra_conf.py'
+let g:ycm_min_num_of_chars_for_completion               = 2 " 输入第 2 个字符开始补全
+let g:ycm_seed_identifiers_with_syntax                  = 1 " 语法关键字补全
+let g:ycm_complete_in_comments                          = 1 " 在注释中也可以补全
+let g:ycm_complete_in_strings                           = 1 " 在字符串输入中也能补全
+let g:ycm_collect_identifiers_from_tag_files            = 1 " 使用 ctags 生成的 tags 文件
+let g:ycm_collect_identifiers_from_comments_and_strings = 1 " 注释和字符串中的文字也会被收入补全
+let g:ycm_cache_omnifunc                                = 0 " 每次重新生成匹配项，禁止缓存匹配项
+let g:ycm_use_ultisnips_completer                       = 0 " 不查询 ultisnips 提供的代码模板补全，如果需要，设置成 1 即可
+let g:ycm_show_diagnostics_ui                           = 0 " 禁用语法检查
+let g:ycm_key_list_select_completion   = ['<Down>']   " 选择下一条补全，Default: ['<TAB>', '<Down>']
+let g:ycm_key_list_previous_completion = ['<Up>']     " 选择上一条补全，Default: ['<S-TAB>', '<Up>']
+let g:ycm_key_list_stop_completion     = ['<Enter>']  " 中止此次补全，Default: ['<C-y>']
+"end
+
+"nerdtre
+
+map <leader>t :NERDTreeToggle<CR>
+let NERDTreeShowLineNumbers=1
+let NERDTreeAutoCenter=1
+let NERDTreeShowHidden=1
+let NERDTreeWinSize=40
+let g:nerdtree_tabs_open_on_console_startup=1
+let NERDTreeIgnore=['\.pyc','\~$','\.swp']
+let NERDTreeShowBookmarks=1
+let NERDTreeHighlightCursorline = 1       " 高亮当前行
+let NERDTreeShowLineNumbers     = 1       " 显示行号
+let NERDTreeIgnore = [ '\.pyc$', '\.pyo$', '\.obj$', '\.o$', '\.egg$', '^\.git$', '^\.repo$', '^\.svn$', '^\.hg$' ]
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | end
+
+" <leader>nt 打开 nerdtree 窗口，在左侧栏显示
+map <leader>nt :NERDTreeToggle<CR>
+" <leader>tc 关闭当前的 tab
+map <leader>tc :tabc<CR>
+" <leader>to 关闭所有其他的 tab
+map <leader>to :tabo<CR>
+" <leader>ts 查看所有打开的 tab
+map <leader>ts :tabs<CR>
+" <leader>tp 前一个 tab
+map <leader>tp :tabp<CR>
+" <leader>tn 后一个 tab
+map <leader>tn :tabn<CR>
+
+"end
+
+"airline
+
+let g:airline_powerline_fonts                   = 1 " 使用 powerline 打过补丁的字体
+let g:airline#extensions#tabline#enabled        = 1 " 开启 tabline
+let g:airline#extensions#tabline#buffer_nr_show = 1 " 显示 buffer 编号
+let g:airline#extensions#ale#enabled            = 1 " enable ale integration
+ 
+" 状态栏显示图标设置
+if !exists('g:airline_symbols')
+    let g:airline_symbols = {}
+endif
+let g:airline_left_sep          = 'I'
+let g:airline_left_alt_sep      = 'I'
+let g:airline_right_sep         = 'I'
+let g:airline_right_alt_sep     = 'I'
+let g:airline_symbols.crypt     = 'I'
+let g:airline_symbols.linenr    = 'I'
+let g:airline_symbols.branch    = 'I'
+" 切换 buffer
+nnoremap [b :bp<CR>
+nnoremap ]b :bn<CR>
+ 
+" 关闭当前 buffer
+noremap <C-x> :w<CR>:bd<CR>
+" <leader>1~9 切到 buffer1~9
+map <leader>1 :b 1<CR>
+map <leader>2 :b 2<CR>
+map <leader>3 :b 3<CR>
+map <leader>4 :b 4<CR>
+map <leader>5 :b 5<CR>
+map <leader>6 :b 6<CR>
+map <leader>7 :b 7<CR>
+map <leader>8 :b 8<CR>
+map <leader>9 :b 9<CR>
+
+"end
+
+"if !exists('g:airline_symbols')
+"let g:airline_symbols = {}
+"endif
+"let g:airline_left_sep = '▶'
+"let g:airline_left_alt_sep = '❯'
+"let g:airline_right_sep = '◀'
+"let g:airline_right_alt_sep = '❮'
+"let g:airline_symbols.linenr = '¶'
+"let g:airline_symbols.branch = '⎇'
+
+colorscheme desert
+
+syntax on
+
+filetype plugin indent on
+set completeopt=longest,menu
+set wildmenu
+
+imap jk <ESC>
+
+map <F8> : call Compile() <CR>
+map <F5> : call Debug() <CR>
+map <F6> : call Run() <CR>
+
+map<C-n> : NERDTreeToggle<CR>
+
+
+"ale
+
+let g:ale_lint_on_text_changed       = 'normal'                     " 代码更改后启动检查 
+let g:ale_lint_on_insert_leave       = 1                            " 退出插入模式即检查
+let g:ale_sign_column_always         = 1                            " 总是显示动态检查结果
+let g:ale_sign_error                 = '>>'                         " error 告警符号
+let g:ale_sign_warning               = '--'                         " warning 告警符号
+let g:ale_echo_msg_error_str         = 'E'                          " 错误显示字符
+let g:ale_echo_msg_warning_str       = 'W'                          " 警告显示字符
+let g:ale_echo_msg_format            = '[%linter%] %s [%severity%]' " 告警显示格式
+ 
+" C 语言配置检查参数
+let g:ale_c_gcc_options              = '-Wall -Werror -O2 -std=c11'
+let g:ale_c_clang_options            = '-Wall -Werror -O2 -std=c11'
+let g:ale_c_cppcheck_options         = ''
+" C++ 配置检查参数
+let g:ale_cpp_gcc_options            = '-Wall -Werror -O2 -std=c++14'
+let g:ale_cpp_clang_options          = '-Wall -Werror -O2 -std=c++14'
+let g:ale_cpp_cppcheck_options       = ''
+ 
+"使用clang对c和c++进行语法检查，对python使用pylint进行语法检查
+let g:ale_linters = {
+\   'c++': ['clang', 'gcc'],
+\   'c': ['clang', 'gcc'],
+\   'python': ['pylint'],
+\}
+" <F9> 触发/关闭代码动态检查
+map <F9> :ALEToggle<CR>
+"普通模式下，ak 前往上一个错误或警告，aj 前往下一个错误或警告                                                                                                                                                    
+nmap ak <Plug>(ale_previous_wrap)
+nmap aj <Plug>(ale_next_wrap)
+" ad 查看错误或警告的详细信息
+nmap ad :ALEDetail<CR>
+
+"end
+
+"tagbar
+
+let g:tagbar_ctags_bin = 'ctags' " tagbar 依赖 ctags 插件
+let g:tagbar_width     = 30      " 设置 tagbar 的宽度为 30 列，默认 40 列
+let g:tagbar_autofocus = 1       " 打开 tagbar 时光标在 tagbar 页面内，默认在 vim 打开的文件内
+let g:tagbar_left      = 1       " 让 tagbar 在页面左侧显示，默认右边
+"let g:tagbar_sort      = 0       " 标签不排序，默认排序
+
+" <leader>tb 打开 tagbar 窗口，在左侧栏显示
+map <leader>tb :TagbarToggle<CR>
+
+"end
+
+
+"taglist
+
+let Tlist_Show_One_File           = 1    " 只显示当前文件的tags
+let Tlist_GainFocus_On_ToggleOpen = 1    " 打开 Tlist 窗口时，光标跳到 Tlist 窗口
+let Tlist_Exit_OnlyWindow         = 1    " 如果 Tlist 窗口是最后一个窗口则退出 Vim
+let Tlist_Use_Left_Window         = 1    " 在左侧窗口中显示
+let Tlist_File_Fold_Auto_Close    = 1    " 自动折叠
+let Tlist_Auto_Update             = 1    " 自动更新
+ 
+" <leader>tl 打开 Tlist 窗口，在左侧栏显示
+map <leader>tl :TlistToggle<CR>
+
+"end
+
+
+"ctrlp
+
+"<Leader>p搜索当前目录下文件
+let g:ctrlp_map = '<Leader>p'
+let g:ctrlp_cmd = 'CtrlP'
+"<Leader>f搜索MRU文件
+nmap <Leader>f :CtrlPMRUFiles<CR>
+"<Leader>b显示缓冲区文件，并可通过序号进行跳转
+nmap <Leader>b :CtrlPBuffer<CR>
+"设置搜索时忽略的文件
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v[\/]\.(git|hg|svn|rvm)$',
+    \ 'file': '\v\.(exe|so|dll|zip|tar|tar.gz|pyc)$',
+    \ }
+let g:ctrlp_working_path_mode = 0
+let g:ctrlp_match_window_bottom = 1
+"修改QuickFix窗口显示的最大条目数
+let g:ctrlp_max_height = 15
+let g:ctrlp_match_window_reversed = 0
+"设置MRU最大条目数为500
+let g:ctrlp_mruf_max = 500
+let g:ctrlp_follow_symlinks = 1
+"默认使用全路径搜索，置1后按文件名搜索，准确率会有所提高，可以用<C-d>进行切换
+let g:ctrlp_by_filename = 1
+"默认不使用正则表达式，置1改为默认使用正则表达式，可以用<C-r>进行切换
+let g:ctrlp_regexp = 0
+"自定义搜索列表的提示符
+let g:ctrlp_line_prefix = '♪ '
+
+"end
